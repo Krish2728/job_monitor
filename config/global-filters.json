@@ -95,5 +95,6 @@
     "intern",
     "internship"
   ],
+  "max_experience_years": 2,
   "min_match_score": 4
 }

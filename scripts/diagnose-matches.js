@@ -16,7 +16,7 @@ for (const company of companies) {
   try {
     const jobs = await fetchCompanyJobs(company);
     const matched = [];
-    const rejected = { title: 0, location: 0, engineering: 0, score: 0 };
+    const rejected = { title: 0, location: 0, engineering: 0, experience: 0, score: 0 };
 
     for (const job of jobs) {
       const result = scoreJob(job, company, globalFilters);
@@ -25,6 +25,7 @@ for (const company of companies) {
       } else {
         const reason = result.reasons[0] || 'unknown';
         if (reason.includes('title') || reason.includes('excluded')) rejected.title++;
+        else if (reason.includes('experience')) rejected.experience++;
         else if (reason.includes('location')) rejected.location++;
         else if (reason.includes('engineering')) rejected.engineering++;
         else rejected.score++;
@@ -33,7 +34,9 @@ for (const company of companies) {
 
     console.log(`\n${company.name} (${company.ats})`);
     console.log(`  fetched: ${jobs.length}, matched: ${matched.length}`);
-    console.log(`  rejected: title=${rejected.title} location=${rejected.location} eng=${rejected.engineering}`);
+    console.log(
+      `  rejected: title=${rejected.title} location=${rejected.location} eng=${rejected.engineering} exp=${rejected.experience}`
+    );
     if (matched.length) console.log(`  samples: ${matched.slice(0, 3).join(' | ')}`);
   } catch (error) {
     console.log(`\n${company.name}: ERROR ${error.message}`);
