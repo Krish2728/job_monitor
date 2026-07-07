@@ -335,7 +335,7 @@
     "priority": 1,
     "locations": ["India", "Hybrid", "Remote"],
     "india_cities": ["Bangalore"],
-    "include_title_keywords": ["SDE-1", "SDE 1", "New Grad Engineer", "Software Engineer", "Intern"],
+    "include_title_keywords": ["SDE-1", "SDE 1", "New Grad Engineer", "Software Engineer", "Intern", "Full Stack"],
     "exclude_title_keywords": ["senior", "staff", "principal", "lead", "manager", "SDE II", "SDE 2"],
     "min_ctc_lpa": 10,
     "notes": "Phase 1 — Greenhouse API"
