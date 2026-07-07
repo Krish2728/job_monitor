@@ -1,0 +1,18 @@
+{
+  "name": "c2r-job-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hourly fresher/new-grad job monitor for target companies",
+  "scripts": {
+    "run": "node scripts/run-hourly.js",
+    "probe": "node scripts/probe-slugs.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "nodemailer": "^6.10.1"
+  }
+}

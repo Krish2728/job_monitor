@@ -1,0 +1,51 @@
+# Hourly job monitor — fetches fresher/new-grad SWE roles from target company career APIs.
+#
+# Email alerts (Gmail): set GitHub secrets MAIL_TO, MAIL_FROM, GMAIL_APP_PASSWORD
+
+name: Job monitor
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Cache jobs database
+        uses: actions/cache@v4
+        id: jobs-db-cache
+        with:
+          path: data/jobs.sqlite
+          key: job-monitor-db-v1-${{ github.repository }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run hourly fetch
+        env:
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: npm run run
+
+      - name: Upload new jobs CSV
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: new-jobs-${{ github.run_id }}
+          path: output/new-jobs-latest.csv
+          if-no-files-found: ignore

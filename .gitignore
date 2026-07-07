@@ -1,0 +1,5 @@
+node_modules/
+data/
+flipkart-jobslist.html
+output/*.csv
+!output/.gitkeep
