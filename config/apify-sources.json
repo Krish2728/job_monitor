@@ -1,0 +1,77 @@
+{
+  "enabled": true,
+  "linkedin": {
+    "max_jobs_per_search": 15,
+    "searches": [
+      {
+        "company": "Google",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20university%20graduate%20google&location=India"
+      },
+      {
+        "company": "Microsoft",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=new%20grad%20software%20engineer%20microsoft&location=India"
+      },
+      {
+        "company": "Flipkart",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20development%20engineer%20flipkart&location=Bangalore%2C%20Karnataka%2C%20India"
+      },
+      {
+        "company": "Swiggy",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20swiggy&location=Bangalore%2C%20Karnataka%2C%20India"
+      },
+      {
+        "company": "Zomato",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20zomato&location=India"
+      },
+      {
+        "company": "Uber",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=new%20grad%20software%20engineer%20uber&location=India"
+      },
+      {
+        "company": "Atlassian",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=graduate%20software%20engineer%20atlassian&location=India"
+      },
+      {
+        "company": "Goldman Sachs",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=technology%20analyst%20goldman%20sachs&location=Bangalore%2C%20Karnataka%2C%20India"
+      },
+      {
+        "company": "JPMorgan Chase",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20program%20jpmorgan&location=India"
+      },
+      {
+        "company": "Adobe",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20adobe&location=India"
+      },
+      {
+        "company": "Salesforce",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=associate%20member%20technical%20staff%20salesforce&location=India"
+      },
+      {
+        "company": "Oracle",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=applications%20engineer%20oracle&location=India"
+      },
+      {
+        "company": "Chargebee",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20chargebee&location=Chennai%2C%20Tamil%20Nadu%2C%20India"
+      },
+      {
+        "company": "Dream11",
+        "url": "https://www.linkedin.com/jobs/search/?keywords=software%20engineer%20dream11&location=Mumbai%2C%20Maharashtra%2C%20India"
+      }
+    ]
+  },
+  "crawl": {
+    "max_pages": 3,
+    "sites": [
+      {
+        "name": "Swiggy",
+        "careers_url": "https://careers.swiggy.com/#/careers"
+      },
+      {
+        "name": "Flipkart",
+        "careers_url": "https://www.flipkartcareers.com/jobslist"
+      }
+    ]
+  }
+}

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { fetchCompanyJobs, isFetchable } from '../fetchers/index.js';
+import { fetchApifyJobs, isApifyEnabled } from '../fetchers/apify.js';
 import { openDb, upsertJob, logRun } from '../lib/db.js';
 import { scoreJob } from '../lib/matcher.js';
 import { sendNewJobsEmail } from '../lib/notify.js';
@@ -44,14 +45,46 @@ function toCsv(rows) {
   return `${lines.join('\n')}\n`;
 }
 
+function processMatchedJobs(db, jobs, company, globalFilters, summary, newRows) {
+  for (const job of jobs) {
+    const result = scoreJob(job, company, globalFilters);
+    if (!result.matched) continue;
+
+    const record = {
+      company: job.company,
+      job_id: job.job_id,
+      role: job.role,
+      link: job.link,
+      location: job.location,
+      pay: job.pay,
+      match_score: result.score,
+      match_reason: result.reasons.join('; '),
+    };
+
+    const { isNew } = upsertJob(db, record);
+    if (isNew) {
+      summary.newMatches += 1;
+      const row = db
+        .prepare(
+          'SELECT company, role, job_id, link, location, pay, match_score, match_reason, first_seen_at FROM jobs WHERE company = ? AND job_id = ?'
+        )
+        .get(record.company, record.job_id);
+      newRows.push(row);
+    }
+  }
+}
+
 async function main() {
   const companies = loadJson('config/companies.json');
   const globalFilters = loadJson('config/global-filters.json');
+  const companyByName = new Map(companies.map((c) => [c.name.toLowerCase(), c]));
   const db = openDb();
 
   const summary = {
     companiesChecked: 0,
     jobsFetched: 0,
+    apifyJobsFetched: 0,
+    apifyEnabled: isApifyEnabled(),
     newMatches: 0,
     errors: [],
   };
@@ -66,39 +99,35 @@ async function main() {
     try {
       const jobs = await fetchCompanyJobs(company);
       summary.jobsFetched += jobs.length;
-
-      for (const job of jobs) {
-        const result = scoreJob(job, company, globalFilters);
-        if (!result.matched) continue;
-
-        const record = {
-          company: job.company,
-          job_id: job.job_id,
-          role: job.role,
-          link: job.link,
-          location: job.location,
-          pay: job.pay,
-          match_score: result.score,
-          match_reason: result.reasons.join('; '),
-        };
-
-        const { isNew } = upsertJob(db, record);
-        if (isNew) {
-          summary.newMatches += 1;
-          const row = db
-            .prepare(
-              'SELECT company, role, job_id, link, location, pay, match_score, match_reason, first_seen_at FROM jobs WHERE company = ? AND job_id = ?'
-            )
-            .get(record.company, record.job_id);
-          newRows.push(row);
-        }
-      }
+      processMatchedJobs(db, jobs, company, globalFilters, summary, newRows);
     } catch (error) {
       summary.errors.push({
         company: company.name,
         message: error.message,
       });
       console.error(`[error] ${company.name}: ${error.message}`);
+    }
+  }
+
+  if (summary.apifyEnabled) {
+    try {
+      const { jobs: apifyJobs, errors: apifyErrors } = await fetchApifyJobs();
+      summary.apifyJobsFetched = apifyJobs.length;
+      summary.companiesChecked += 1;
+
+      for (const err of apifyErrors) {
+        summary.errors.push({ company: `apify:${err.source}`, message: err.message });
+        console.error(`[apify] ${err.source}: ${err.message}`);
+      }
+
+      for (const job of apifyJobs) {
+        const company = companyByName.get(String(job.company).toLowerCase());
+        if (!company) continue;
+        processMatchedJobs(db, [job], company, globalFilters, summary, newRows);
+      }
+    } catch (error) {
+      summary.errors.push({ company: 'apify', message: error.message });
+      console.error(`[apify] ${error.message}`);
     }
   }
 
@@ -126,6 +155,8 @@ async function main() {
         ranAt: new Date().toISOString(),
         companiesChecked: summary.companiesChecked,
         jobsFetched: summary.jobsFetched,
+        apifyEnabled: summary.apifyEnabled,
+        apifyJobsFetched: summary.apifyJobsFetched,
         newMatches: summary.newMatches,
         errors: summary.errors.length,
         email: emailResult,
